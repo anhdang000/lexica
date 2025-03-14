@@ -8,7 +8,8 @@ import {
   StyleSheet,
   Image,
 } from 'react-native';
-import { Search, Filter, Grid2x2 as Grid, List, BookMarked, Camera } from 'lucide-react-native';
+import { Search, Filter, BookMarked } from 'lucide-react-native';
+import { router } from 'expo-router';
 
 const topics = [
   {
@@ -43,7 +44,10 @@ const topics = [
 
 export default function LibraryScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isGridView, setIsGridView] = useState(true);
+
+  const handleTopicPress = (topicId: string) => {
+    router.push({ pathname: '/(collection)/collection', params: { topicId } });
+  };
 
   return (
     <View style={styles.container}>
@@ -57,14 +61,11 @@ export default function LibraryScreen() {
           <Search size={20} color="#BDBDBD" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Look up a word..."
+            placeholder="Search for a collection..."
             placeholderTextColor="#BDBDBD"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          <TouchableOpacity style={styles.cameraButton}>
-            <Camera size={20} color="#BDBDBD" />
-          </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.filterButton}>
@@ -72,44 +73,18 @@ export default function LibraryScreen() {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.viewToggle}>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            isGridView && styles.toggleButtonActive,
-          ]}
-          onPress={() => setIsGridView(true)}
-        >
-          <Grid size={20} color={isGridView ? '#FFC067' : '#A0A0A0'} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            !isGridView && styles.toggleButtonActive,
-          ]}
-          onPress={() => setIsGridView(false)}
-        >
-          <List size={20} color={!isGridView ? '#FFC067' : '#A0A0A0'} />
-        </TouchableOpacity>
-      </View>
-
       <ScrollView
         style={styles.content}
-        contentContainerStyle={[
-          styles.topicsGrid,
-          !isGridView && styles.topicsList,
-        ]}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
       >
         {topics.map((topic) => (
           <TouchableOpacity
             key={topic.id}
-            style={[styles.topicCard, !isGridView && styles.topicCardList]}
+            style={styles.topicCard}
+            onPress={() => handleTopicPress(topic.id)}
           >
-            <Image
-              source={{ uri: topic.image }}
-              style={[styles.topicImage, !isGridView && styles.topicImageList]}
-            />
-            <View style={[styles.topicInfo, !isGridView && styles.topicInfoList]}>
+            <Image source={{ uri: topic.image }} style={styles.topicImage} />
+            <View style={styles.topicInfo}>
               <View style={styles.topicHeader}>
                 <Text style={styles.topicTitle}>{topic.title}</Text>
                 <View style={styles.wordCount}>
@@ -171,10 +146,6 @@ const styles = StyleSheet.create({
     color: '#333',
     height: '100%',
   },
-  cameraButton: {
-    padding: 8,
-    marginLeft: 8,
-  },
   filterButton: {
     width: 56,
     height: 56,
@@ -183,81 +154,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  viewToggle: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end', // Align to the right
-    paddingRight: 20,
-    paddingBottom: 10,
-  },
-  toggleButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    marginLeft: 8, // Use marginLeft for spacing
-  },
-  toggleButtonActive: {
-    backgroundColor: '#FFF3E0',
-  },
   content: {
     flex: 1,
   },
-  topicsGrid: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    gap: 16,
-    flexDirection: 'row',
-    flexWrap: 'wrap', // Add flexWrap for grid layout
-  },
-  topicsList: {
-    flexDirection: 'column',
-    paddingHorizontal: 20,
-  },
   topicCard: {
-    backgroundColor: '#FFF',
+    flexDirection: 'row',
+    height: 100,
+    backgroundColor: '#F8F8F8',
     borderRadius: 16,
     overflow: 'hidden',
-    // iOS shadow
-    shadowColor: '#000',
+    shadowColor: '#00',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    // Android elevation
     elevation: 3,
-    width: '48%', // For two items per row
-    aspectRatio: 1, // Maintain aspect ratio for grid
-  },
-  topicCardList: {
-    flexDirection: 'row',
     marginBottom: 16,
-    height: 100,
-    width: '100%', // Full width for list
-    aspectRatio: undefined, // Remove aspect ratio for list
   },
   topicImage: {
-    width: '100%',
-    height: '100%', // Use 100% for grid items
-  },
-  topicImageList: {
     width: 100,
     height: '100%',
   },
   topicInfo: {
-    position: 'absolute', // Position info on top of image in grid
-    bottom: 0,
-    left: 0,
-    right: 0,
-    padding: 16,
-    backgroundColor: 'rgba(255,255,255,0.9)', // Semi-transparent background
-  },
-  topicInfoList: {
     flex: 1,
-    justifyContent: 'center',
     padding: 16,
-    position: 'static', // Reset position for list
-    backgroundColor: 'transparent',
   },
   topicHeader: {
     flexDirection: 'row',

@@ -145,7 +145,7 @@ export default function TabLayout() {
             <View style={styles.modalTopBar} />
             <TouchableOpacity
               style={styles.modalOption}
-              onPress={() => closeModal(() => router.push('/create-flashcard'))}
+              onPress={() => closeModal(() => router.push('/(collection)/create-flashcard'))}
             >
               <View style={styles.iconContainer}>
                 {/* Using Layers icon */}
