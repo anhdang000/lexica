@@ -6,10 +6,10 @@ import {
   Plus,
   User,
   BookOpen,
-  Layers,
-  Folder,
+  Layers, // Correctly imported
+  FolderPlus,
 } from 'lucide-react-native';
-import { router } from 'expo-router'; // Added import for navigation
+import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import {
   TouchableOpacity,
@@ -22,37 +22,37 @@ import {
   Dimensions,
 } from 'react-native';
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 export default function TabLayout() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(height)).current;
 
-  // Function to trigger haptic feedback for tab presses
   const handleTabPress = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   };
 
-  // Function to open the modal with animation
   const handleAddPress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setIsModalVisible(true);
-    Animated.timing(slideAnim, {
-      toValue: 0,
-      duration: 300,
+    Animated.spring(slideAnim, {
+      toValue: (height - (height * 0.32)) / 2, // 50% height
+      tension: 30,
+      friction: 8,
       useNativeDriver: true,
     }).start();
   };
 
-  // Function to close the modal with animation and optional callback
   const closeModal = (callback?: () => void) => {
     Animated.timing(slideAnim, {
       toValue: height,
-      duration: 300,
+      duration: 250,
       useNativeDriver: true,
     }).start(() => {
       setIsModalVisible(false);
-      callback?.();
+      if (callback && typeof callback === 'function') {
+        callback();
+      }
     });
   };
 
@@ -62,21 +62,20 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
           tabBarStyle: {
-            backgroundColor: '#fff',
+            backgroundColor: '#FFF',
             borderTopWidth: 1,
-            borderTopColor: '#f0f0f0',
+            borderTopColor: '#E0E0E0',
             height: 80,
             paddingBottom: 20,
           },
-          tabBarActiveTintColor: '#007AFF',
-          tabBarInactiveTintColor: '#666',
+          tabBarActiveTintColor: '#FFC067',
+          tabBarInactiveTintColor: '#A0A0A0',
           tabBarLabelStyle: {
             fontFamily: 'Inter-Medium',
             fontSize: 12,
           },
         }}
       >
-        {/* Home Tab */}
         <Tabs.Screen
           name="index"
           options={{
@@ -85,7 +84,6 @@ export default function TabLayout() {
           }}
           listeners={{ tabPress: handleTabPress }}
         />
-        {/* Library Tab */}
         <Tabs.Screen
           name="library"
           options={{
@@ -94,14 +92,13 @@ export default function TabLayout() {
           }}
           listeners={{ tabPress: handleTabPress }}
         />
-        {/* Add Tab */}
         <Tabs.Screen
           name="add"
           options={{
             title: '',
             tabBarIcon: () => (
               <View style={styles.addButton}>
-                <Plus size={24} color="#fff" />
+                <Plus size={24} color="#FFF" />
               </View>
             ),
           }}
@@ -112,7 +109,6 @@ export default function TabLayout() {
             },
           }}
         />
-        {/* Practice Tab */}
         <Tabs.Screen
           name="practice"
           options={{
@@ -121,7 +117,6 @@ export default function TabLayout() {
           }}
           listeners={{ tabPress: handleTabPress }}
         />
-        {/* Profile Tab */}
         <Tabs.Screen
           name="profile"
           options={{
@@ -132,27 +127,47 @@ export default function TabLayout() {
         />
       </Tabs>
 
-      {/* Modal for 'Add' button */}
-      <Modal visible={isModalVisible} transparent={true} animationType="none">
-        {/* Static Dimmed Background */}
-        <Pressable style={styles.modalOverlay} onPress={closeModal} />
-
-        {/* Animated Sliding Menu */}
-        <Animated.View
-          style={[styles.modalContent, { transform: [{ translateY: slideAnim }] }]}
-        >
-          <TouchableOpacity
-            style={styles.modalOption}
-            onPress={() => closeModal(() => router.push('/create-flashcard'))}
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="none"
+      >
+        <View style={styles.modalOverlay}>
+          <Pressable style={styles.pressableOverlay} onPress={closeModal}>
+            <View />
+          </Pressable>
+          <Animated.View
+            style={[
+              styles.modalContent,
+              { transform: [{ translateY: slideAnim }] },
+            ]}
           >
-            <Layers size={24} color="#007AFF" />
-            <Text style={styles.modalOptionText}>Flashcard</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.modalOption} onPress={closeModal}>
-            <Folder size={24} color="#007AFF" />
-            <Text style={styles.modalOptionText}>Folder</Text>
-          </TouchableOpacity>
-        </Animated.View>
+            <View style={styles.modalTopBar} />
+            <TouchableOpacity
+              style={styles.modalOption}
+              onPress={() => closeModal(() => router.push('/create-flashcard'))}
+            >
+              <View style={styles.iconContainer}>
+                {/* Using Layers icon */}
+                <Layers size={24} color="#FFC067" />
+              </View>
+              <Text style={styles.modalOptionText}>Flashcard</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalOption}
+              onPress={() =>
+                closeModal(() => {
+                  router.push('/create-topic');
+                })
+              }
+            >
+              <View style={styles.iconContainer}>
+                <FolderPlus size={24} color="#FFC067" />
+              </View>
+              <Text style={styles.modalOptionText}>Topic</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
       </Modal>
     </>
   );
@@ -160,7 +175,7 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   addButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FFC067',
     width: 56,
     height: 56,
     borderRadius: 28,
@@ -169,40 +184,62 @@ const styles = StyleSheet.create({
     marginTop: -32,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
     elevation: 5,
   },
   modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pressableOverlay: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Static dimmed background
   },
   modalContent: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingVertical: 20,
+    backgroundColor: '#FFF',
+    borderRadius: 24,
+    paddingVertical: 24,
+    paddingHorizontal: 20,
+    marginHorizontal: 16,
+    width: width - 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalTopBar: {
+    width: 50,
+    height: 5,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2.5,
+    alignSelf: 'center',
+    marginBottom: 20,
   },
   modalOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 15,
-    marginHorizontal: 20,
-    marginBottom: 10,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
+    paddingVertical: 16,
+    marginBottom: 12,
   },
   modalOptionText: {
-    fontSize: 18,
+    fontFamily: 'Inter-Medium',
+    fontSize: 20,
     color: '#333',
-    marginLeft: 10,
+    marginLeft: 16,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#FFF3E0',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

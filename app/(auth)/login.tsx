@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { router } from 'expo-router';
-import { Mail, Lock, ArrowRight } from 'lucide-react-native';
+import { Mail, Lock, ArrowRight, Apple, Google } from 'lucide-react-native';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -13,7 +22,10 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
       <View style={styles.header}>
         <Text style={styles.title}>Welcome to Lexica</Text>
         <Text style={styles.subtitle}>Your personal dictionary companion</Text>
@@ -21,10 +33,11 @@ export default function LoginScreen() {
 
       <View style={styles.form}>
         <View style={styles.inputContainer}>
-          <Mail size={20} color="#666" style={styles.inputIcon} />
+          <Mail size={20} color="#BDBDBD" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Email"
+            placeholderTextColor="#BDBDBD"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -33,10 +46,11 @@ export default function LoginScreen() {
         </View>
 
         <View style={styles.inputContainer}>
-          <Lock size={20} color="#666" style={styles.inputIcon} />
+          <Lock size={20} color="#BDBDBD" style={styles.inputIcon} />
           <TextInput
             style={styles.input}
             placeholder="Password"
+            placeholderTextColor="#BDBDBD"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -60,32 +74,31 @@ export default function LoginScreen() {
 
         <View style={styles.socialButtons}>
           <TouchableOpacity style={styles.socialButton}>
-            <Image
-              source={{ uri: 'https://www.google.com/favicon.ico' }}
-              style={styles.socialIcon}
-            />
+            <Google size={24} color="#666" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.socialButton}>
-            <Image
-              source={{ uri: 'https://www.apple.com/favicon.ico' }}
-              style={styles.socialIcon}
-            />
+            <Apple size={24} color="#666" />
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.signupContainer}>
+        <TouchableOpacity
+          style={styles.signupContainer}
+          onPress={() => {
+            /* TODO: Implement navigation to sign up screen */
+          }}
+        >
           <Text style={styles.signupText}>Don't have an account? </Text>
           <Text style={styles.signupLink}>Sign up</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFF',
     padding: 20,
   },
   header: {
@@ -95,13 +108,13 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Playfair-Bold',
     fontSize: 32,
-    color: '#1a1a1a',
+    color: '#333', // Darker text for better contrast
     marginBottom: 8,
   },
   subtitle: {
     fontFamily: 'Inter-Regular',
     fontSize: 16,
-    color: '#666',
+    color: '#757575', // Slightly darker gray
   },
   form: {
     flex: 1,
@@ -109,7 +122,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5F5F5', // Light gray background
     borderRadius: 12,
     marginBottom: 16,
     padding: 4,
@@ -122,6 +135,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Regular',
     fontSize: 16,
     padding: 12,
+    color: '#333', // Darker text
   },
   forgotPassword: {
     alignSelf: 'flex-end',
@@ -129,11 +143,11 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     fontFamily: 'Inter-Medium',
-    color: '#007AFF',
+    color: '#FFC067', // Using the accent color
     fontSize: 14,
   },
   loginButton: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#FFC067', // Accent color
     borderRadius: 12,
     padding: 16,
     flexDirection: 'row',
@@ -142,7 +156,7 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     fontFamily: 'Inter-SemiBold',
-    color: '#fff',
+    color: '#FFF',
     fontSize: 16,
     marginRight: 8,
   },
@@ -154,11 +168,11 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#E0E0E0',
   },
   dividerText: {
     fontFamily: 'Inter-Regular',
-    color: '#666',
+    color: '#757575',
     marginHorizontal: 16,
   },
   socialButtons: {
@@ -170,7 +184,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -185,10 +199,10 @@ const styles = StyleSheet.create({
   },
   signupText: {
     fontFamily: 'Inter-Regular',
-    color: '#666',
+    color: '#757575',
   },
   signupLink: {
     fontFamily: 'Inter-SemiBold',
-    color: '#007AFF',
+    color: '#FFC067',
   },
 });
