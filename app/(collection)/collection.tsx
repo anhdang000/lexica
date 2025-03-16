@@ -31,34 +31,38 @@ export default function CollectionScreen() {
             </View>
 
             <ScrollView style={styles.content}>
-                {words.map((item, index) => (
+            {words.map((item, index) => (
+                <TouchableOpacity 
+                    key={index} 
+                    onPress={() => router.push('/(word)/' + item.word)}
+                >
                     <View 
-                        key={index} 
-                        style={[
-                            styles.wordCard, 
-                            item.reviewCount > 0 && styles.reviewedWordCard
-                        ]}
+                    style={[
+                        styles.wordCard, 
+                        item.reviewCount > 0 && styles.reviewedWordCard
+                    ]}
                     >
-                        <View style={styles.wordHeader}>
-                            <View>
-                                <Text style={styles.word}>{item.word}</Text>
-                                <Text style={styles.phonetic}>{item.phonetic}</Text>
-                            </View>
-                            <View style={styles.wordActions}>
-                                <TouchableOpacity style={styles.actionButton}>
-                                    <Volume2 size={20} color="#FFC067" />
-                                </TouchableOpacity>
-                            </View>
+                    <View style={styles.wordHeader}>
+                        <View>
+                        <Text style={styles.word}>{item.word}</Text>
+                        <Text style={styles.phonetic}>{item.phonetic}</Text>
                         </View>
-                        <Text style={styles.partOfSpeech}>{item.partOfSpeech}</Text>
-                        <Text style={styles.definition}>{item.definition}</Text>
-                        <Text style={styles.example}>{item.example}</Text>
-                        <View style={styles.reviewContainer}>
-                            <Text style={styles.reviewCount}>
-                                Times reviewed: {item.reviewCount}
-                            </Text>
+                        <View style={styles.wordActions}>
+                        <TouchableOpacity style={styles.actionButton}>
+                            <Volume2 size={20} color="#FFC067" />
+                        </TouchableOpacity>
                         </View>
                     </View>
+                    <Text style={styles.partOfSpeech}>{item.partOfSpeech}</Text>
+                    <Text style={styles.definition}>{item.definition}</Text>
+                    <Text style={styles.example}>{item.example}</Text>
+                    <View style={styles.reviewContainer}>
+                        <Text style={styles.reviewCount}>
+                        Times reviewed: {item.reviewCount}
+                        </Text>
+                    </View>
+                    </View>
+                </TouchableOpacity>
                 ))}
             </ScrollView>
         </View>
