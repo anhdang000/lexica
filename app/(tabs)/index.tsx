@@ -12,7 +12,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { router } from 'expo-router';
-import { BookmarkPlus, Camera, X, FileText } from 'lucide-react-native';
+import { BookmarkPlus, Camera, X, FileText, Wand2, SendHorizonal } from 'lucide-react-native';
 
 export default function HomeScreen() {
   const [inputText, setInputText] = useState('');
@@ -20,7 +20,8 @@ export default function HomeScreen() {
   const inputHeight = useRef(new Animated.Value(120)).current;
   const inputBorderRadius = useRef(new Animated.Value(20)).current;
   const inputPaddingHorizontal = useRef(new Animated.Value(16)).current;
-  const textInputRef = useRef(null);
+  const textInputRef = useRef<TextInput>(null);
+  const submitButtonScale = useRef(new Animated.Value(1)).current;
 
   const handleFocus = () => {
     setInputFocused(true);
@@ -94,18 +95,17 @@ export default function HomeScreen() {
                   paddingHorizontal: inputPaddingHorizontal,
                   borderColor: isInputFocused ? '#FFC067' : 'transparent',
                   borderWidth: isInputFocused ? 2 : 0,
-                  // Shadow styles (conditional)
                   ...Platform.select({
-                      ios: {
-                        shadowColor: isInputFocused ? '#FFC067' : 'transparent',
-                        shadowOffset: { width: 0, height: isInputFocused ? 4 : 0 }, // Increase height when focused
-                        shadowOpacity: isInputFocused ? 0.3 : 0,
-                        shadowRadius: isInputFocused ? 6 : 0, // Increase radius when focused
-                      },
-                      android: {
-                        elevation: isInputFocused ? 5 : 0, // Increase elevation when focused
-                      },
-                    }),
+                    ios: {
+                      shadowColor: isInputFocused ? '#FFC067' : 'transparent',
+                      shadowOffset: { width: 0, height: isInputFocused ? 4 : 0 },
+                      shadowOpacity: isInputFocused ? 0.3 : 0,
+                      shadowRadius: isInputFocused ? 6 : 0,
+                    },
+                    android: {
+                      elevation: isInputFocused ? 5 : 0,
+                    },
+                  }),
                 },
               ]}
             >
@@ -125,25 +125,53 @@ export default function HomeScreen() {
                   <TouchableOpacity
                     onPress={clearInput}
                     style={styles.clearButton}
+                    activeOpacity={0.7}
                   >
                     <X size={14} color="#757575" />
                   </TouchableOpacity>
                 )}
               </View>
-
-              <TouchableOpacity
-                style={styles.cameraContainer}
-                onPress={() => {
-                  textInputRef.current?.blur();
-                }}
-              >
-                <Camera size={28} color="#BDBDBD" />
-              </TouchableOpacity>
+              <View style={styles.bottomButtonsContainer}>
+                <TouchableOpacity
+                  style={styles.cameraButton}
+                  onPress={() => {
+                    textInputRef.current?.blur();
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Camera size={28} color="#BDBDBD" />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={() => {
+                    const trimmedText = inputText.trim();
+                    if (trimmedText) {
+                      router.push(`/(word)/${trimmedText}`);
+                      setInputText('');
+                    }
+                  }}
+                  onPressIn={() => {
+                    Animated.spring(submitButtonScale, {
+                      toValue: 0.9,
+                      useNativeDriver: true,
+                    }).start();
+                  }}
+                  onPressOut={() => {
+                    Animated.spring(submitButtonScale, {
+                      toValue: 1,
+                      useNativeDriver: true,
+                    }).start();
+                  }}
+                >
+                  <Animated.View style={{ transform: [{ scale: submitButtonScale }] }}>
+                    <SendHorizonal size={28} color="#FFC067" />
+                  </Animated.View>
+                </TouchableOpacity>
+              </View>
             </Animated.View>
           </TouchableWithoutFeedback>
         </View>
 
-        {/* ... (rest of your component remains unchanged) */}
         <ScrollView
           style={styles.content}
           showsVerticalScrollIndicator={false}
@@ -159,10 +187,10 @@ export default function HomeScreen() {
                     <Text style={styles.phonetic}>/əˈfem(ə)rəl/</Text>
                   </View>
                   <View style={styles.wordActions}>
-                    <TouchableOpacity style={styles.actionButton}>
+                    <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
                       <FileText size={20} color="#FFC067" />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.actionButton}>
+                    <TouchableOpacity style={styles.actionButton} activeOpacity={0.7}>
                       <BookmarkPlus size={20} color="#FFC067" />
                     </TouchableOpacity>
                   </View>
@@ -187,7 +215,7 @@ export default function HomeScreen() {
             >
               {['serendipity', 'eloquent', 'paradigm', 'ubiquitous'].map(
                 (word) => (
-                  <TouchableOpacity key={word} style={styles.recentWord}>
+                  <TouchableOpacity key={word} style={styles.recentWord} activeOpacity={0.7}>
                     <Text style={styles.recentWordText}>{word}</Text>
                   </TouchableOpacity>
                 )
@@ -254,21 +282,28 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: 'absolute',
-    top: 25,
-    right: 27,
-  },
-  cameraContainer: {
-    position: 'absolute',
-    bottom: 10,
-    right: 16,
-  },
-  cameraButton: {
-    padding: 8,
+    top: 8,
+    right: 8,
   },
   clearButton: {
     padding: 4,
     backgroundColor: '#E0E0E0',
     borderRadius: 14,
+  },
+  bottomButtonsContainer: {
+    position: 'absolute',
+    bottom: 10,
+    right: 16,
+    left: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  submitButton: {
+    padding: 8,
+  },
+  cameraButton: {
+    padding: 8,
   },
   content: {
     flex: 1,
